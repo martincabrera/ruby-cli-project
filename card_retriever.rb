@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 require_relative 'api_client'
 require 'byebug'
 
 class CardRetriever
-
   attr_reader :code, :colors
 
-  def initialize(code = 'KTK', colors = ['blue', 'red'])
-    @code, @colors = code, colors
+  def initialize(code = 'KTK', colors = %w[blue red])
+    @code = code
+    @colors = colors
   end
 
   def option(value)
     case value
-      when 1
-        fetchAllCards
-      when 2
-        fetchAllCardsGroupedByRarity
-      when 3
-        fetchCardsByCodeColor(code, colors)
+    when 1
+      fetch_all_cards
+    when 2
+      fetch_all_cards_grouped_by_rarity
+    when 3
+      fetch_cards_by_code_color(code, colors)
     end
   end
 
@@ -26,8 +28,8 @@ class CardRetriever
     @all_cards ||= begin
       total = []
       api_client = ApiClient.new
-      (1..5).each do |page_number| #TODO!!! Use number_of_pages
-        total << api_client.get('cards', { page: page_number })['cards']
+      (1..5).each do |page_number| # TODO!!! Use number_of_pages
+        total << api_client.get('cards', page: page_number)['cards']
       end
       total.flatten
     end
@@ -36,39 +38,37 @@ class CardRetriever
   def total_card_number
     @total_card_number ||= begin
       response = ApiClient.head('cards')
-      response.each_header.select { |key, value| key == 'total-count' }.flatten[1].to_i
+      response.each_header.select { |key, _value| key == 'total-count' }.flatten[1].to_i
     end
   end
 
   def number_of_pages
     pages, remainder = total_card_number.divmod(100)
-    pages += 1 if remainder > 0
+    pages += 1 if remainder.positive?
     pages
   end
 
-  def fetchAllCards
-    cards = cardsGroupedBySet(all_cards)
+  def fetch_all_cards
+    cards = cards_grouped_by_set(all_cards)
     puts cards
   rescue StandardError => error
     puts "Ups! something went wrong retrieving those cards: #{error.message}"
   end
 
-  def fetchAllCardsGroupedByRarity
-    cards = cardsGroupedBySetRarity(all_cards)
+  def fetch_all_cards_grouped_by_rarity
+    cards = cards_grouped_by_set_rarity(all_cards)
     puts cards
   rescue StandardError => error
     puts "Ups! something went wrong retrieving those cards: #{error.message}"
   end
 
-  def fetchCardsByCodeColor(code, colors)
+  def fetch_cards_by_code_color(code, colors); end
 
-  end
-
-  def cardsGroupedBySet(card_list)
+  def cards_grouped_by_set(card_list)
     card_list.group_by { |card| card['set'] }
   end
 
-  def cardsGroupedBySetRarity(card_list)
+  def cards_grouped_by_set_rarity(card_list)
     card_list.group_by { |card| [card['set'], card['rarity']] }
   end
 end

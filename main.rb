@@ -22,7 +22,8 @@ option_list = OptionParser.new do |parser|
 
   parser.on('-h', '--three', 'Returns a list of cards from KTK that ONLY have the colors red AND blue') do
     options[:selection] = 3
-  endd
+    endd
+  end
 end
 
 begin

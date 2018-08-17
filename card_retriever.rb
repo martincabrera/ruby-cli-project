@@ -2,6 +2,7 @@
 
 require_relative 'api_client'
 require 'byebug'
+require 'parallel'
 
 class CardRetriever
   attr_reader :code, :colors
@@ -28,8 +29,8 @@ class CardRetriever
     @all_cards ||= begin
       total = []
       api_client = ApiClient.new
-      (1..5).each do |page_number| # TODO!!! Use number_of_pages
-        total << api_client.get('cards', page: page_number)['cards']
+      total +=Parallel.map((1..number_of_pages).to_a, in_processes: 10) do |page_number| # TODO!!! Use number_of_pages
+        page_cards = api_client.get('cards', page: page_number)['cards']
       end
       total.flatten
     end

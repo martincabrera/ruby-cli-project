@@ -60,4 +60,4 @@ module MTG
       http.request(request)
     end
   end
-  end
+end

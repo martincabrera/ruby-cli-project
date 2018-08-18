@@ -1,4 +1,20 @@
 Documentation:
   Enabled: false
+
+AllCops:
+  TargetRubyVersion: 2.5
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
+Metrics/MethodLength:
+  Exclude:
+    - spec/**/*.rb
 Metrics/LineLength:
   Max: 120
+  Exclude:
+    - spec/**/*.rb
+
+
+
+
+

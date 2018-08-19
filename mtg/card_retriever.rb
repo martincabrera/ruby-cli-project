@@ -5,35 +5,26 @@ require 'parallel'
 
 module MTG
   class CardRetriever
-    attr_reader :code, :colors
+    TMP_FILE = 'tmp/cards.dump'
 
-    def initialize(code = 'KTK', colors = %w[blue red])
-      @code = code
-      @colors = colors
-    end
-
-    def option(value)
-      case value
-      when 1
-        fetch_all_cards
-      when 2
-        fetch_all_cards_grouped_by_rarity
-      when 3
-        fetch_cards_by_code_color(code, colors)
-      end
+    def self.cards
+      new.send(:cards)
     end
 
     private
 
-    def all_cards
-      @all_cards ||= begin
-        total = []
-        api_client = MTG::ApiClient.new
-        total += Parallel.map((1..number_of_pages).to_a, in_processes: 10) do |page_number|
-          api_client.get('cards', page: page_number)['cards']
-        end
-        total.flatten
+    def cards
+      return file_content if file_not_empty
+      cards_and_save
+    end
+
+    def api_cards
+      total = []
+      api_client = MTG::ApiClient.new
+      total += Parallel.map((1..2).to_a, in_processes: 10) do |page_number| # TODO: Cambiar 2 por number_of_pages
+        api_client.get('cards', page: page_number)['cards']
       end
+      total.flatten
     end
 
     def total_card_number
@@ -49,30 +40,22 @@ module MTG
       pages
     end
 
-    def fetch_all_cards
-      cards = cards_grouped_by_set(all_cards)
-      puts cards
-    rescue StandardError => error
-      puts "Ups! something went wrong retrieving those cards: #{error.message}"
+    def cards_and_save
+      cards = api_cards
+      save_content_to_file(cards)
+      cards
     end
 
-    def fetch_all_cards_grouped_by_rarity
-      cards = cards_grouped_by_set_rarity(all_cards)
-      puts cards
-    rescue StandardError => error
-      puts "Ups! something went wrong retrieving those cards: #{error.message}"
+    def file_not_empty
+      File.exist?(TMP_FILE) && !File.zero?(TMP_FILE)
     end
 
-    def fetch_cards_by_code_color(code, colors)
-      # pending!!!!
+    def file_content
+      File.read(TMP_FILE)
     end
 
-    def cards_grouped_by_set(card_list)
-      card_list.group_by { |card| card['set'] }
-    end
-
-    def cards_grouped_by_set_rarity(card_list)
-      card_list.group_by { |card| [card['set'], card['rarity']] }
+    def save_content_to_file(file_content)
+      File.write(TMP_FILE, file_content)
     end
   end
 end

@@ -3,7 +3,6 @@
 require 'optparse'
 require_relative 'mtg/card_filter'
 
-
 TMP_FILE = 'tmp/cards.dump'
 
 options = {}
@@ -14,6 +13,10 @@ option_list = OptionParser.new do |parser|
 
   parser.on('-h', '--help', 'Show this help message') do
     puts parser
+  end
+
+  parser.on('-v', '--version', 'Show version') do
+    puts '0.0.1'
   end
 
   parser.on('-o', '--one', 'Returns a list of cards grouped by set') do

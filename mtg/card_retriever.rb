@@ -18,10 +18,25 @@ module MTG
       cards_and_save
     end
 
+    def file_not_empty
+      File.exist?(TMP_FILE) && !File.zero?(TMP_FILE)
+    end
+
+    def file_content
+      data = File.read(TMP_FILE)
+      JSON.parse(data)
+    end
+
+    def cards_and_save
+      cards = api_cards
+      save_content_to_file(cards)
+      cards
+    end
+
     def api_cards
       total = []
       api_client = MTG::ApiClient.new
-      total += Parallel.map((1..2).to_a, in_processes: 10) do |page_number| # TODO: Cambiar 2 por number_of_pages
+      total += Parallel.map((1..number_of_pages).to_a, in_processes: 10) do |page_number|
         api_client.get('cards', page: page_number)['cards']
       end
       total.flatten
@@ -40,22 +55,8 @@ module MTG
       pages
     end
 
-    def cards_and_save
-      cards = api_cards
-      save_content_to_file(cards)
-      cards
-    end
-
-    def file_not_empty
-      File.exist?(TMP_FILE) && !File.zero?(TMP_FILE)
-    end
-
-    def file_content
-      File.read(TMP_FILE)
-    end
-
     def save_content_to_file(file_content)
-      File.write(TMP_FILE, file_content)
+      File.write(TMP_FILE, JSON.generate(file_content))
     end
   end
 end

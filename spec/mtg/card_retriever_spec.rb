@@ -13,12 +13,12 @@ describe MTG::CardRetriever do
       allow_any_instance_of(MTG::CardRetriever).to receive(:save_content_to_file)
     end
 
-    it 'expects to return cards content' do
+    it 'returns cards content' do
       cards = described_class.cards
       expect(cards).to eq cards_content
     end
 
-    it 'expects to save cards content in tmp' do
+    it 'saves cards content in tmp' do
       card_retriever = described_class.new
       card_retriever.send(:cards)
       expect(card_retriever).to have_received(:save_content_to_file)
@@ -30,7 +30,7 @@ describe MTG::CardRetriever do
       allow_any_instance_of(MTG::CardRetriever).to receive(:file_not_empty).and_return(true)
     end
 
-    it 'expects to return cards content' do
+    it 'returns cards content' do
       allow_any_instance_of(MTG::CardRetriever).to receive(:file_content).and_return(cards_content)
       cards = described_class.cards
       expect(cards).to eq cards_content

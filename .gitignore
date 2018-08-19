@@ -3,3 +3,9 @@
 
 # Ignore byebug history
 .byebug_history
+
+# Ignore .DS_Store MacOS file
+.DS_Store
+
+# Ignore .tmp directory
+tmp/*

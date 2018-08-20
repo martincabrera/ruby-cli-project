@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'card_retriever'
-require 'byebug'
 
 describe MTG::CardRetriever do
   let(:cards_content) { 'This is my cards content' }

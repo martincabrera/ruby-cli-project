@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'card_filter'
-require 'byebug'
 
 describe MTG::CardFilter do
   before do
